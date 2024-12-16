@@ -1,0 +1,7 @@
+<!-- android/app/src/debug/AndroidManifest.xml -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.calistenia.app">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+</manifest>
