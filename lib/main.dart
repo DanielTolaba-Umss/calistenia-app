@@ -22,7 +22,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   // Descomentar la siguiente línea solo una vez para sembrar los datos
-  //await seedInitialData();
+  await seedInitialData();
   runApp(const MyApp());
 }
 

@@ -6,8 +6,9 @@ import 'package:provider/provider.dart';
 import '../../../models/exercise_model.dart';
 import '../../../controllers/exercise_controller.dart';
 import '../workout/timer_screen.dart';
-import '../workout/tutorial_ar_screen.dart';
-import '../workout/tutorial_screen.dart';
+import '../workout/tutorial_3d_screen.dart';
+
+
 
 class WorkoutScreen extends StatefulWidget {
   final ExerciseModel exercise;
@@ -240,15 +241,15 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                           icon: Icons.play_circle_outline,
                           onPressed: () {
                             String modelPath = 'assets/models/${widget.exercise.name.toLowerCase()}.glb';
-                           /* Navigator.push(
+                            Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => Tutorial3DScreen(
                                   exercise: widget.exercise,
-                                  modelPath: modelPath,
+                                  modelPath: 'assets/models/${widget.exercise.name.toLowerCase().replaceAll(' ', '_')}.glb',
                                 ),
                               ),
-                            );*/
+                            );
                           },
                         ),
                       ),

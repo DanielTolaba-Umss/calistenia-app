@@ -16,6 +16,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   card_swiper: ^3.0.1
   camera: ^0.10.5+9
+  model_viewer_plus: ^1.8.0
 
 
 dev_dependencies:
