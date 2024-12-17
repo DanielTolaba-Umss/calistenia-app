@@ -1,96 +1,138 @@
-/*import 'package:flutter/material.dart' hide Colors;
-import 'package:model_viewer_plus/model_viewer_plus.dart';
+import 'package:flutter/material.dart';
+import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
+import 'package:vector_math/vector_math_64.dart' as vector;
 import '../../../models/exercise_model.dart';
 
-class Tutorial3DScreen extends StatefulWidget {
+class TutorialARScreen extends StatefulWidget {
   final ExerciseModel exercise;
   final String modelPath;
 
-  const Tutorial3DScreen({
+  const TutorialARScreen({
     Key? key,
     required this.exercise,
     required this.modelPath,
   }) : super(key: key);
 
   @override
-  State<Tutorial3DScreen> createState() => _Tutorial3DScreenState();
+  State<TutorialARScreen> createState() => _TutorialARScreenState();
 }
 
-class _Tutorial3DScreenState extends State<Tutorial3DScreen> {
-  bool isLoading = true;
+class _TutorialARScreenState extends State<TutorialARScreen> {
+  ArCoreController? arCoreController;
+  bool isModelPlaced = false;
+
+  @override
+  void dispose() {
+    arCoreController?.dispose();
+    super.dispose();
+  }
+
+  void onArCoreViewCreated(ArCoreController controller) {
+    arCoreController = controller;
+    arCoreController?.onPlaneTap = _handlePlaneTap;
+  }
+
+  void _handlePlaneTap(List<ArCoreHitTestResult> hits) {
+    if (!isModelPlaced && hits.isNotEmpty) {
+      final hit = hits.first;
+      _addModel(hit);
+      setState(() {
+        isModelPlaced = true;
+      });
+    }
+  }
+
+  Future<void> _addModel(ArCoreHitTestResult hit) async {
+    print('Intentando cargar el modelo: ${widget.modelPath}');
+
+    final node = ArCoreReferenceNode(
+      object3DFileName: widget.modelPath,
+      position: hit.pose.translation,
+      rotation: hit.pose.rotation,
+      scale: vector.Vector3(0.2, 0.2, 0.2),
+    );
+
+    try {
+      await arCoreController?.addArCoreNode(node);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Modelo cargado: ${widget.modelPath}'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error al cargar el modelo 3D: $e');
+      print('Ruta del modelo: ${widget.modelPath}');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al cargar el modelo: ${widget.modelPath}\nError: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tutorial: ${widget.exercise.name}'),
-        backgroundColor: const Color(0x00000000), // Transparent color
-        elevation: 0,
+        title: Text(widget.exercise.name),
+        backgroundColor: Colors.blue,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              setState(() {
+                isModelPlaced = false;
+              });
+              arCoreController?.removeNode(nodeName: "exercise_model");
+            },
+          ),
+        ],
       ),
-      extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          ModelViewer(
-            src: 'assets/models/flexiones0.glb',
-            alt: 'Un modelo 3D del ejercicio',
-            ar: false,
-            autoRotate: true,
-            cameraControls: true,
-            disableZoom: false,
-            loading: Loading.eager,
+          ArCoreView(
+            onArCoreViewCreated: onArCoreViewCreated,
+            enableTapRecognizer: true,
+            enablePlaneRenderer: true,
           ),
-          if (isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
-          // Información del ejercicio
-          Positioned(
-            top: 100,
-            left: 20,
-            right: 20,
-            child: Card(
-              color: const Color(0xB3000000), // Black with opacity
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Repeticiones: ${widget.exercise.repetitions}',
-                      style: const TextStyle(color: Color(0xFFFFFFFF)), // White
+          if (!isModelPlaced)
+            Positioned(
+              bottom: 20,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'Toca la superficie plana detectada para colocar el modelo 3D',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Series: ${widget.exercise.sets}',
-                      style: const TextStyle(color: Color(0xFFFFFFFF)), // White
-                    ),
-                  ],
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
             ),
-          ),
-          // Instrucciones de uso
-          Positioned(
-            bottom: 20,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xB3000000), // Black with opacity
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text(
-                  'Usa un dedo para rotar • Dos dedos para zoom',
-                  style: TextStyle(color: Color(0xFFFFFFFF)), // White
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 }
-*/

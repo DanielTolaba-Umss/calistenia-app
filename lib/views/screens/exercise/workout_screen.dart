@@ -239,16 +239,29 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                           text: 'Tutorial',
                           icon: Icons.play_circle_outline,
                           onPressed: () {
-                            String modelPath = 'assets/models/${widget.exercise.name.toLowerCase()}.glb';
-                           /* Navigator.push(
+                            // Obtener el nombre del ejercicio en minúsculas y sin espacios
+                            String modelFileName = widget.exercise.name.toLowerCase()
+                                .replaceAll(' ', '_')
+                                .replaceAll('á', 'a')
+                                .replaceAll('é', 'e')
+                                .replaceAll('í', 'i')
+                                .replaceAll('ó', 'o')
+                                .replaceAll('ú', 'u');
+
+                            // Construir la ruta del modelo
+                            String modelPath = 'assets/models/$modelFileName.glb';
+
+                            print('Intentando cargar modelo: $modelPath'); // Para debugging
+
+                            Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Tutorial3DScreen(
+                                builder: (context) => TutorialARScreen(
                                   exercise: widget.exercise,
                                   modelPath: modelPath,
                                 ),
                               ),
-                            );*/
+                            );
                           },
                         ),
                       ),
